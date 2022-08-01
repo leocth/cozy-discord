@@ -30,9 +30,11 @@ import org.quiltmc.community.cozy.modules.cleanup.userCleanup
 import org.quiltmc.community.cozy.modules.moderation.moderation
 import org.quiltmc.community.cozy.modules.rolesync.rolesync
 import org.quiltmc.community.cozy.modules.tags.tags
+import org.quiltmc.community.cozy.modules.voting.voting
 import org.quiltmc.community.cozy.modules.welcome.welcomeChannel
 import org.quiltmc.community.database.collections.ServerSettingsCollection
 import org.quiltmc.community.database.collections.TagsCollection
+import org.quiltmc.community.database.collections.VotingCollection
 import org.quiltmc.community.database.collections.WelcomeChannelCollection
 import org.quiltmc.community.modes.quilt.extensions.*
 import org.quiltmc.community.modes.quilt.extensions.filtering.FilterExtension
@@ -98,7 +100,6 @@ suspend fun setupQuilt() = ExtensibleBot(DISCORD_TOKEN) {
 		add(::LogParsingExtension)
 		add(::MessageLogExtension)
 		add(::MinecraftExtension)
-		add(::PKExtension)
 		add(::SettingsExtension)
 		add(::ShowcaseExtension)
 		add(::SuggestionsExtension)
@@ -180,6 +181,11 @@ suspend fun setupQuilt() = ExtensibleBot(DISCORD_TOKEN) {
 
 		sentry {
 			distribution = "community"
+		}
+
+		voting(getKoin().get<VotingCollection>()) {
+			commandCheck { inQuiltGuild() }
+			commandCheck { hasCommunityTeamRole() }
 		}
 	}
 }

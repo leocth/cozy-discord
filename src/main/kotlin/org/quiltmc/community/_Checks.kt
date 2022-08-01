@@ -159,3 +159,28 @@ suspend fun CheckContext<*>.notHasBaseModeratorRole() {
 		}
 	}
 }
+
+suspend fun CheckContext<*>.hasCommunityTeamRole() {
+	if (!passed) {
+		return
+	}
+
+	inQuiltGuild()
+
+	if (this.passed) {  // They're on a Quilt guild
+		val logger = KotlinLogging.logger("org.quiltmc.community.hasCommunityTeamRole")
+		val member = memberFor(event)?.asMemberOrNull()
+
+		if (member == null) {  // Shouldn't happen, but you never know
+			logger.nullMember(event)
+
+			fail()
+		} else {
+			if (!member.roleIds.any { it == COMMUNITY_COMMUNITY_TEAM_ROLE }) {
+				logger.failed("Member does not have the Quilt Community Team role")
+
+				fail("Must be a Quilt community team member, with the `Community Team` role")
+			}
+		}
+	}
+}

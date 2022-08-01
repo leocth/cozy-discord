@@ -86,6 +86,7 @@ dependencies {
 	implementation(project(":module-role-sync"))
 	implementation(project(":module-tags"))
 	implementation(project(":module-user-cleanup"))
+	implementation(project(":module-voting"))
 	implementation(project(":module-welcome"))
 }
 
