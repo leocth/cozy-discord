@@ -7,30 +7,36 @@
 package org.quiltmc.community.database.collections
 
 import com.kotlindiscord.kord.extensions.koin.KordExKoinComponent
-import com.soywiz.korio.dynamic.KDynamic.Companion.map
 import dev.kord.common.entity.Snowflake
 import org.koin.core.component.inject
 import org.litote.kmongo.eq
-import org.quiltmc.community.cozy.modules.voting.data.Application
+import org.litote.kmongo.or
+import org.quiltmc.community.cozy.modules.voting.data.Vote
 import org.quiltmc.community.cozy.modules.voting.data.VotingData
 import org.quiltmc.community.database.Collection
 import org.quiltmc.community.database.Database
-import org.quiltmc.community.database.entities.ApplicationEntity
+import org.quiltmc.community.database.entities.VoteEntity
+import java.util.UUID
 
 class VotingCollection : KordExKoinComponent, VotingData {
 	private val database: Database by inject()
-	private val col = database.mongo.getCollection<ApplicationEntity>(name)
+	private val col = database.mongo.getCollection<VoteEntity>(name)
 
-	override suspend fun getApplication(id: Snowflake): Application? =
-		col.findOne(ApplicationEntity::_id eq id)?.toApplication()
+	override suspend fun getVote(id: UUID, guildId: Snowflake): Vote? =
+		col.findOne(
+			or(VoteEntity::guildId eq null, VoteEntity::guildId eq guildId),
+			VoteEntity::_id eq id,
+		)?.toVote()
 
-	override suspend fun getApplicationsForUser(id: Snowflake): List<Application> =
-		col.find(ApplicationEntity::applicant eq id)
+	override suspend fun getAllActiveVotes(): List<Vote> =
+		col.find(
+			VoteEntity::isClosed eq false
+		)
 			.toList()
-			.map(ApplicationEntity::toApplication)
+			.map { it.toVote() }
 
-	override suspend fun setApplication(application: Application) {
-		col.save(ApplicationEntity.fromApplication(application))
+	override suspend fun setVote(vote: Vote) {
+		col.save(VoteEntity.fromVote(vote))
 	}
 
 	companion object : Collection("voting")

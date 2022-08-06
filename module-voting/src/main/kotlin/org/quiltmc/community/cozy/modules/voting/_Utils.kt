@@ -8,10 +8,16 @@ package org.quiltmc.community.cozy.modules.voting
 
 import com.kotlindiscord.kord.extensions.builders.ExtensibleBotBuilder
 import com.kotlindiscord.kord.extensions.utils.loadModule
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import org.koin.dsl.bind
 import org.quiltmc.community.cozy.modules.voting.config.SimpleVotingConfig
 import org.quiltmc.community.cozy.modules.voting.config.VotingConfig
 import org.quiltmc.community.cozy.modules.voting.data.VotingData
+import java.util.*
 
 public fun ExtensibleBotBuilder.ExtensionsBuilder.voting(
 	config: VotingConfig,
@@ -28,4 +34,13 @@ public fun ExtensibleBotBuilder.ExtensionsBuilder.voting(
 	body: SimpleVotingConfig.Builder.() -> Unit
 ) {
 	voting(SimpleVotingConfig(body), data)
+}
+
+internal object UUIDSerializer : KSerializer<UUID> {
+	override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+
+	override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
+	override fun serialize(encoder: Encoder, value: UUID) {
+		encoder.encodeString(value.toString())
+	}
 }

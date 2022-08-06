@@ -7,9 +7,10 @@
 package org.quiltmc.community.cozy.modules.voting.data
 
 import dev.kord.common.entity.Snowflake
+import java.util.UUID
 
 public interface VotingData {
-	public suspend fun getApplication(id: Snowflake): Application?
-	public suspend fun getApplicationsForUser(id: Snowflake): List<Application>
-	public suspend fun setApplication(application: Application)
+	public suspend fun getVote(id: UUID, guildId: Snowflake): Vote?
+	public suspend fun getAllActiveVotes(): List<Vote>
+	public suspend fun setVote(vote: Vote)
 }
